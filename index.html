@@ -1,1 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plant Care App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>🌿 My Plant Care</h1>
+      <button id="addPlantBtn">+ Add Plant</button>
+    </header>
 
+    <section id="plantList" class="plant-list">
+      <!-- Plants will be displayed here -->
+    </section>
+
+    <!-- Modal -->
+    <div class="modal" id="plantModal">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <h2>Add New Plant</h2>
+        <form id="plantForm">
+          <input type="text" id="plantName" placeholder="Plant Name" required />
+          <input type="text" id="plantType" placeholder="Type (e.g. Succulent)" required />
+          <input type="date" id="reminderDate" required />
+          <textarea id="plantInfo" placeholder="Plant notes..." rows="3"></textarea>
+          <button type="submit">Add Plant</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
