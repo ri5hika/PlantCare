@@ -555,4 +555,70 @@
             showStatsModal() {
                 const totalCareActions = this.careHistory.length;
                 const waterActions = this.careHistory.filter(h => h.action === 'water').length;
-                const
+                const fertilizeActions = this.careHistory.filter(h => h.action === 'fertilize').length;
+                const avgWaterFreq = this.plants.length > 0 ? 
+                    Math.round(this.plants.reduce((sum, plant) => sum + plant.waterFrequency, 0) / this.plants.length) : 0;
+
+                const content = `
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl p-4 text-white text-center">
+                            <div class="text-2xl font-bold">${totalCareActions}</div>
+                            <div class="text-sm opacity-90">Total Care Actions</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-400 to-green-500 rounded-xl p-4 text-white text-center">
+                            <div class="text-2xl font-bold">${waterActions}</div>
+                            <div class="text-sm opacity-90">Times Watered</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl p-4 text-white text-center">
+                            <div class="text-2xl font-bold">${fertilizeActions}</div>
+                            <div class="text-sm opacity-90">Times Fertilized</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl p-4 text-white text-center">
+                            <div class="text-2xl font-bold">${avgWaterFreq}</div>
+                            <div class="text-sm opacity-90">Avg Water Days</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white bg-opacity-50 rounded-xl p-4">
+                        <h4 class="font-semibold text-gray-800 mb-3">🏆 Achievements</h4>
+                        <div class="space-y-2">
+                            ${this.plants.length >= 1 ? '<div class="flex items-center text-green-600"><span class="mr-2">✅</span> First Plant Added</div>' : '<div class="flex items-center text-gray-400"><span class="mr-2">⭕</span> First Plant Added</div>'}
+                            ${this.plants.length >= 5 ? '<div class="flex items-center text-green-600"><span class="mr-2">✅</span> Plant Collector (5+)</div>' : '<div class="flex items-center text-gray-400"><span class="mr-2">⭕</span> Plant Collector (5+)</div>'}
+                            ${waterActions >= 10 ? '<div class="flex items-center text-green-600"><span class="mr-2">✅</span> Hydration Hero (10+ waters)</div>' : '<div class="flex items-center text-gray-400"><span class="mr-2">⭕</span> Hydration Hero (10+ waters)</div>'}
+                            ${this.calculateCareStreak() >= 7 ? '<div class="flex items-center text-green-600"><span class="mr-2">✅</span> Week Streak</div>' : '<div class="flex items-center text-gray-400"><span class="mr-2">⭕</span> Week Streak</div>'}
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('stats-content').innerHTML = content;
+                document.getElementById('stats-modal').classList.remove('hidden');
+            }
+
+            hideStatsModal() {
+                document.getElementById('stats-modal').classList.add('hidden');
+            }
+
+            savePlants() {
+                localStorage.setItem('plants', JSON.stringify(this.plants));
+            }
+        }
+
+        // Initialize the plant care system
+        const plantCare = new PlantCareSystem();
+
+        // Global functions for modal controls
+        function showAddPlantModal() {
+            document.getElementById('add-plant-modal').classList.remove('hidden');
+        }
+
+        function hideAddPlantModal() {
+            document.getElementById('add-plant-modal').classList.add('hidden');
+        }
+
+        function showStatsModal() {
+            plantCare.showStatsModal();
+        }
+
+        function hideStatsModal() {
+            plantCare.hideStatsModal();
+        }
