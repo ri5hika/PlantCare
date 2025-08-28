@@ -1,38 +1,558 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plant Care App</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantCare • Your Green Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-soft': 'pulse-soft 3s ease-in-out infinite',
+                        'slide-up': 'slide-up 0.5s ease-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'pulse-soft': {
+                            '0%, 100%': { opacity: '0.8' },
+                            '50%': { opacity: '1' },
+                        },
+                        'slide-up': {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .plant-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .floating-icon {
+            animation: float 6s ease-in-out infinite;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+        }
+    </style>
 </head>
-<body>
-  <div class="app">
-    <header>
-      <h1>🌿 My Plant Care</h1>
-      <button id="addPlantBtn">+ Add Plant</button>
+<body class="min-h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100">
+    <!-- Floating decorative elements -->
+    <div class="fixed top-20 left-10 w-20 h-20 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 opacity-60 floating-icon"></div>
+    <div class="fixed top-40 right-20 w-16 h-16 rounded-full bg-gradient-to-br from-blue-200 to-cyan-200 opacity-50 floating-icon" style="animation-delay: -2s;"></div>
+    <div class="fixed bottom-32 left-32 w-12 h-12 rounded-full bg-gradient-to-br from-green-200 to-emerald-200 opacity-70 floating-icon" style="animation-delay: -4s;"></div>
+
+    <!-- Header -->
+    <header class="relative z-10 p-6">
+        <nav class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white font-bold">🌱</div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">PlantCare</h1>
+            </div>
+            <div class="flex space-x-4">
+                <button onclick="showAddPlantModal()" class="px-6 py-3 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-full hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                    ✨ Add Plant
+                </button>
+                <button onclick="showStatsModal()" class="px-6 py-3 glass-effect text-gray-700 rounded-full hover:bg-white hover:bg-opacity-30 transition-all duration-300">
+                    📊 Stats
+                </button>
+            </div>
+        </nav>
     </header>
 
-    <section id="plantList" class="plant-list">
-      <!-- Plants will be displayed here -->
-    </section>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Welcome Section -->
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Your Green Paradise 🌿</h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Nurture your plants with love and technology. Track their care, set reminders, and watch them thrive!</p>
+        </div>
 
-    <!-- Modal -->
-    <div class="modal" id="plantModal">
-      <div class="modal-content">
-        <span class="close-btn" id="closeModal">&times;</span>
-        <h2>Add New Plant</h2>
-        <form id="plantForm">
-          <input type="text" id="plantName" placeholder="Plant Name" required />
-          <input type="text" id="plantType" placeholder="Type (e.g. Succulent)" required />
-          <input type="date" id="reminderDate" required />
-          <textarea id="plantInfo" placeholder="Plant notes..." rows="3"></textarea>
-          <button type="submit">Add Plant</button>
-        </form>
-      </div>
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div class="stats-card rounded-xl p-6 text-center animate-slide-up">
+                <div class="text-3xl mb-2">🌱</div>
+                <div class="text-2xl font-bold text-white" id="total-plants">0</div>
+                <div class="text-white opacity-90">Total Plants</div>
+            </div>
+            <div class="stats-card rounded-xl p-6 text-center animate-slide-up" style="animation-delay: 0.1s;">
+                <div class="text-3xl mb-2">💧</div>
+                <div class="text-2xl font-bold text-white" id="need-water">0</div>
+                <div class="text-white opacity-90">Need Water</div>
+            </div>
+            <div class="stats-card rounded-xl p-6 text-center animate-slide-up" style="animation-delay: 0.2s;">
+                <div class="text-3xl mb-2">☀️</div>
+                <div class="text-2xl font-bold text-white" id="healthy-plants">0</div>
+                <div class="text-white opacity-90">Healthy</div>
+            </div>
+            <div class="stats-card rounded-xl p-6 text-center animate-slide-up" style="animation-delay: 0.3s;">
+                <div class="text-3xl mb-2">🎯</div>
+                <div class="text-2xl font-bold text-white" id="care-streak">0</div>
+                <div class="text-white opacity-90">Care Streak</div>
+            </div>
+        </div>
+
+        <!-- Filter & Search -->
+        <div class="flex flex-col md:flex-row gap-4 mb-8">
+            <div class="flex-1">
+                <input type="text" id="search-plants" placeholder="🔍 Search your plants..." class="w-full px-6 py-4 rounded-full glass-effect placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400">
+            </div>
+            <select id="filter-plants" class="px-6 py-4 rounded-full glass-effect focus:outline-none focus:ring-2 focus:ring-green-400">
+                <option value="all">All Plants</option>
+                <option value="needs-water">Needs Water</option>
+                <option value="healthy">Healthy</option>
+                <option value="low-light">Low Light</option>
+                <option value="high-light">High Light</option>
+            </select>
+        </div>
+
+        <!-- Plants Grid -->
+        <div id="plants-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Plants will be dynamically added here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="text-center py-20 hidden">
+            <div class="text-8xl mb-4 animate-pulse-soft">🌱</div>
+            <h3 class="text-2xl font-bold text-gray-700 mb-4">No plants yet!</h3>
+            <p class="text-gray-500 mb-8">Start your green journey by adding your first plant</p>
+            <button onclick="showAddPlantModal()" class="px-8 py-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-full hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                🌱 Add Your First Plant
+            </button>
+        </div>
+    </main>
+
+    <!-- Add Plant Modal -->
+    <div id="add-plant-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="glass-effect rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-up">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Add New Plant 🌱</h3>
+            <form id="add-plant-form">
+                <div class="space-y-4">
+                    <input type="text" id="plant-name" placeholder="Plant name" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400">
+                    
+                    <select id="plant-type" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400">
+                        <option value="">Select plant type</option>
+                        <option value="succulent">🌵 Succulent</option>
+                        <option value="flowering">🌸 Flowering Plant</option>
+                        <option value="foliage">🍃 Foliage Plant</option>
+                        <option value="herb">🌿 Herb</option>
+                        <option value="tree">🌳 Tree</option>
+                        <option value="fern">🌿 Fern</option>
+                    </select>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-2">💧 Water Frequency (days)</label>
+                            <input type="number" id="water-frequency" min="1" max="30" value="7" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-2">☀️ Sunlight</label>
+                            <select id="sunlight-needs" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400">
+                                <option value="low">🌙 Low Light</option>
+                                <option value="medium">⛅ Medium Light</option>
+                                <option value="high">☀️ High Light</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <textarea id="plant-notes" placeholder="Special care notes..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 h-20 resize-none"></textarea>
+                </div>
+
+                <div class="flex space-x-4 mt-6">
+                    <button type="button" onclick="hideAddPlantModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-xl hover:shadow-lg transition-all duration-300">
+                        Add Plant
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
 
-  <script src="app.js"></script>
-</body>
-</html>
+    <!-- Plant Details Modal -->
+    <div id="plant-details-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="glass-effect rounded-2xl p-8 max-w-lg w-full mx-4 animate-slide-up">
+            <div id="plant-details-content">
+                <!-- Plant details will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="glass-effect rounded-2xl p-8 max-w-2xl w-full mx-4 animate-slide-up">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">📊 Care Statistics</h3>
+            <div id="stats-content" class="space-y-6">
+                <!-- Stats will be dynamically added here -->
+            </div>
+            <button onclick="hideStatsModal()" class="w-full mt-6 px-6 py-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Plant Care System JavaScript
+        class PlantCareSystem {
+            constructor() {
+                this.plants = JSON.parse(localStorage.getItem('plants')) || [];
+                this.careHistory = JSON.parse(localStorage.getItem('careHistory')) || [];
+                this.init();
+            }
+
+            init() {
+                this.renderPlants();
+                this.updateStats();
+                this.setupEventListeners();
+                this.checkReminders();
+                
+                // Check for reminders every minute
+                setInterval(() => this.checkReminders(), 60000);
+            }
+
+            setupEventListeners() {
+                // Add plant form
+                document.getElementById('add-plant-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addPlant();
+                });
+
+                // Search and filter
+                document.getElementById('search-plants').addEventListener('input', () => this.filterPlants());
+                document.getElementById('filter-plants').addEventListener('change', () => this.filterPlants());
+            }
+
+            addPlant() {
+                const plant = {
+                    id: Date.now(),
+                    name: document.getElementById('plant-name').value,
+                    type: document.getElementById('plant-type').value,
+                    waterFrequency: parseInt(document.getElementById('water-frequency').value),
+                    sunlightNeeds: document.getElementById('sunlight-needs').value,
+                    notes: document.getElementById('plant-notes').value,
+                    dateAdded: new Date().toISOString(),
+                    lastWatered: null,
+                    lastFertilized: null,
+                    health: 'healthy'
+                };
+
+                this.plants.push(plant);
+                this.savePlants();
+                this.renderPlants();
+                this.updateStats();
+                this.hideAddPlantModal();
+                this.showNotification('🌱 Plant added successfully!');
+                
+                // Reset form
+                document.getElementById('add-plant-form').reset();
+            }
+
+            renderPlants() {
+                const container = document.getElementById('plants-container');
+                const emptyState = document.getElementById('empty-state');
+                
+                if (this.plants.length === 0) {
+                    container.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+                
+                container.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                
+                container.innerHTML = this.plants.map(plant => this.createPlantCard(plant)).join('');
+            }
+
+            createPlantCard(plant) {
+                const emoji = this.getPlantEmoji(plant.type);
+                const sunlightEmoji = { low: '🌙', medium: '⛅', high: '☀️' }[plant.sunlightNeeds];
+                const daysUntilWater = this.getDaysUntilWater(plant);
+                const needsWater = daysUntilWater <= 0;
+                const waterStatus = needsWater ? 'Needs water!' : `${daysUntilWater} days`;
+
+                return `
+                    <div class="plant-card rounded-2xl p-6 border border-white border-opacity-50 shadow-lg" data-plant-id="${plant.id}">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="text-4xl">${emoji}</div>
+                            <div class="flex space-x-2">
+                                <button onclick="plantCare.waterPlant(${plant.id})" class="text-blue-500 hover:text-blue-600 text-xl" title="Water plant">💧</button>
+                                <button onclick="plantCare.fertilizePlant(${plant.id})" class="text-yellow-500 hover:text-yellow-600 text-xl" title="Fertilize">🌟</button>
+                                <button onclick="plantCare.showPlantDetails(${plant.id})" class="text-gray-500 hover:text-gray-600 text-xl" title="Details">ℹ️</button>
+                                <button onclick="plantCare.deletePlant(${plant.id})" class="text-red-500 hover:text-red-600 text-xl" title="Delete">🗑️</button>
+                            </div>
+                        </div>
+                        
+                        <h3 class="font-bold text-lg text-gray-800 mb-2">${plant.name}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${plant.type.charAt(0).toUpperCase() + plant.type.slice(1)}</p>
+                        
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">💧 Water:</span>
+                                <span class="text-sm ${needsWater ? 'text-red-500 font-bold' : 'text-gray-700'}">${waterStatus}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">☀️ Light:</span>
+                                <span class="text-sm text-gray-700">${sunlightEmoji} ${plant.sunlightNeeds}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">❤️ Health:</span>
+                                <span class="text-sm text-green-600 capitalize">${plant.health}</span>
+                            </div>
+                        </div>
+
+                        ${needsWater ? '<div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg"><p class="text-red-700 text-sm">🚨 This plant needs water!</p></div>' : ''}
+                    </div>
+                `;
+            }
+
+            getPlantEmoji(type) {
+                const emojis = {
+                    succulent: '🌵',
+                    flowering: '🌸',
+                    foliage: '🍃',
+                    herb: '🌿',
+                    tree: '🌳',
+                    fern: '🌿'
+                };
+                return emojis[type] || '🌱';
+            }
+
+            getDaysUntilWater(plant) {
+                if (!plant.lastWatered) return 0;
+                const lastWatered = new Date(plant.lastWatered);
+                const nextWatering = new Date(lastWatered.getTime() + (plant.waterFrequency * 24 * 60 * 60 * 1000));
+                const now = new Date();
+                return Math.ceil((nextWatering - now) / (24 * 60 * 60 * 1000));
+            }
+
+            waterPlant(plantId) {
+                const plant = this.plants.find(p => p.id === plantId);
+                if (plant) {
+                    plant.lastWatered = new Date().toISOString();
+                    this.addCareHistory(plantId, 'water');
+                    this.savePlants();
+                    this.renderPlants();
+                    this.updateStats();
+                    this.showNotification('💧 Plant watered!');
+                }
+            }
+
+            fertilizePlant(plantId) {
+                const plant = this.plants.find(p => p.id === plantId);
+                if (plant) {
+                    plant.lastFertilized = new Date().toISOString();
+                    this.addCareHistory(plantId, 'fertilize');
+                    this.savePlants();
+                    this.renderPlants();
+                    this.updateStats();
+                    this.showNotification('🌟 Plant fertilized!');
+                }
+            }
+
+            deletePlant(plantId) {
+                if (confirm('Are you sure you want to delete this plant?')) {
+                    this.plants = this.plants.filter(p => p.id !== plantId);
+                    this.savePlants();
+                    this.renderPlants();
+                    this.updateStats();
+                    this.showNotification('🗑️ Plant removed');
+                }
+            }
+
+            showPlantDetails(plantId) {
+                const plant = this.plants.find(p => p.id === plantId);
+                if (!plant) return;
+
+                const emoji = this.getPlantEmoji(plant.type);
+                const sunlightEmoji = { low: '🌙', medium: '⛅', high: '☀️' }[plant.sunlightNeeds];
+                const daysUntilWater = this.getDaysUntilWater(plant);
+
+                const content = `
+                    <div class="text-center mb-6">
+                        <div class="text-6xl mb-4">${emoji}</div>
+                        <h3 class="text-2xl font-bold text-gray-800">${plant.name}</h3>
+                        <p class="text-gray-600">${plant.type.charAt(0).toUpperCase() + plant.type.slice(1)}</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-white bg-opacity-50 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">💧 Watering Schedule</h4>
+                            <p class="text-gray-600">Every ${plant.waterFrequency} days</p>
+                            <p class="text-sm ${daysUntilWater <= 0 ? 'text-red-500' : 'text-gray-500'}">
+                                ${daysUntilWater <= 0 ? 'Needs water now!' : `Next watering in ${daysUntilWater} days`}
+                            </p>
+                        </div>
+
+                        <div class="bg-white bg-opacity-50 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">${sunlightEmoji} Sunlight Needs</h4>
+                            <p class="text-gray-600 capitalize">${plant.sunlightNeeds} light</p>
+                        </div>
+
+                        <div class="bg-white bg-opacity-50 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">📅 Care History</h4>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                ${plant.lastWatered ? `<p>💧 Last watered: ${new Date(plant.lastWatered).toLocaleDateString()}</p>` : '<p>💧 Never watered</p>'}
+                                ${plant.lastFertilized ? `<p>🌟 Last fertilized: ${new Date(plant.lastFertilized).toLocaleDateString()}</p>` : '<p>🌟 Never fertilized</p>'}
+                                <p>🌱 Added: ${new Date(plant.dateAdded).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+
+                        ${plant.notes ? `
+                            <div class="bg-white bg-opacity-50 rounded-xl p-4">
+                                <h4 class="font-semibold text-gray-800 mb-2">📝 Notes</h4>
+                                <p class="text-gray-600">${plant.notes}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="flex space-x-3 mt-6">
+                        <button onclick="plantCare.waterPlant(${plant.id}); plantCare.hidePlantDetails()" class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors">
+                            💧 Water
+                        </button>
+                        <button onclick="plantCare.fertilizePlant(${plant.id}); plantCare.hidePlantDetails()" class="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition-colors">
+                            🌟 Fertilize
+                        </button>
+                        <button onclick="plantCare.hidePlantDetails()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
+                            Close
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById('plant-details-content').innerHTML = content;
+                document.getElementById('plant-details-modal').classList.remove('hidden');
+            }
+
+            hidePlantDetails() {
+                document.getElementById('plant-details-modal').classList.add('hidden');
+            }
+
+            addCareHistory(plantId, action) {
+                this.careHistory.push({
+                    plantId,
+                    action,
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem('careHistory', JSON.stringify(this.careHistory));
+            }
+
+            updateStats() {
+                const totalPlants = this.plants.length;
+                const needWater = this.plants.filter(plant => this.getDaysUntilWater(plant) <= 0).length;
+                const healthy = this.plants.filter(plant => plant.health === 'healthy').length;
+                const careStreak = this.calculateCareStreak();
+
+                document.getElementById('total-plants').textContent = totalPlants;
+                document.getElementById('need-water').textContent = needWater;
+                document.getElementById('healthy-plants').textContent = healthy;
+                document.getElementById('care-streak').textContent = careStreak;
+            }
+
+            calculateCareStreak() {
+                const today = new Date();
+                let streak = 0;
+                let currentDate = new Date(today);
+
+                while (true) {
+                    const dateStr = currentDate.toDateString();
+                    const hasActivity = this.careHistory.some(entry => 
+                        new Date(entry.date).toDateString() === dateStr
+                    );
+
+                    if (hasActivity) {
+                        streak++;
+                        currentDate.setDate(currentDate.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+
+                return streak;
+            }
+
+            filterPlants() {
+                const searchTerm = document.getElementById('search-plants').value.toLowerCase();
+                const filter = document.getElementById('filter-plants').value;
+                
+                let filteredPlants = this.plants;
+
+                if (searchTerm) {
+                    filteredPlants = filteredPlants.filter(plant => 
+                        plant.name.toLowerCase().includes(searchTerm) ||
+                        plant.type.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                if (filter !== 'all') {
+                    switch (filter) {
+                        case 'needs-water':
+                            filteredPlants = filteredPlants.filter(plant => this.getDaysUntilWater(plant) <= 0);
+                            break;
+                        case 'healthy':
+                            filteredPlants = filteredPlants.filter(plant => plant.health === 'healthy');
+                            break;
+                        case 'low-light':
+                            filteredPlants = filteredPlants.filter(plant => plant.sunlightNeeds === 'low');
+                            break;
+                        case 'high-light':
+                            filteredPlants = filteredPlants.filter(plant => plant.sunlightNeeds === 'high');
+                            break;
+                    }
+                }
+
+                // Temporarily store original plants array and replace with filtered
+                const originalPlants = this.plants;
+                this.plants = filteredPlants;
+                this.renderPlants();
+                this.plants = originalPlants;
+            }
+
+            checkReminders() {
+                const plantsNeedingWater = this.plants.filter(plant => this.getDaysUntilWater(plant) <= 0);
+                
+                if (plantsNeedingWater.length > 0) {
+                    const names = plantsNeedingWater.map(p => p.name).join(', ');
+                    this.showNotification(`🚨 Time to water: ${names}`, 'warning');
+                }
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 px-6 py-4 rounded-xl shadow-lg z-50 animate-slide-up ${
+                    type === 'success' ? 'bg-green-500' : 'bg-orange-500'
+                } text-white`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            showStatsModal() {
+                const totalCareActions = this.careHistory.length;
+                const waterActions = this.careHistory.filter(h => h.action === 'water').length;
+                const
